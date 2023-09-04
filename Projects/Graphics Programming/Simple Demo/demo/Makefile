@@ -1,5 +1,5 @@
 TARGET = texture
-OBJS = main.o ../common/callbacks.o ../common/vram.o ../common/graphics.o
+OBJS = main.o ../common/callbacks.o ../common/common-sce.o
 
 #INCDIR = ../../gu2gl/
 CFLAGS = -Wall -std=c11
