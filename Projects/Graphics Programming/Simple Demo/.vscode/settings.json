@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "pspgu.h": "c",
+        "hsl_rgb.h": "c",
+        "time.h": "c",
+        "vram.h": "c",
+        "graphics.h": "c",
+        "pspdisplay.h": "c",
+        "callbacks.h": "c"
+    }
+}

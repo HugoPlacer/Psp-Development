@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "Controls"
+		},
+		{
+			"path": "Framebuffer-Graphics"
+		},
+		{
+			"path": "Hello-World"
+		},
+		{
+			"path": "File-Operations"
+		}
+	]
+}
