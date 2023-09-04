@@ -12,6 +12,7 @@
         "string.h": "c",
         "pspgum.h": "c",
         "pspkernel.h": "c",
-        "common-sce.h": "c"
+        "common-sce.h": "c",
+        "math.h": "c"
     }
 }

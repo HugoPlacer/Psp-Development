@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "PSP",
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/local/pspdev/psp/include",
