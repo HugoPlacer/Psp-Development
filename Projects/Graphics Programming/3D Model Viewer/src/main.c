@@ -164,7 +164,7 @@ typedef struct
     float yaw, pitch;
 } Camera3D;
 
-void apply_camera(const Camera2D *cam)
+void apply_camera2d(const Camera2D *cam)
 {
     sceGumMatrixMode(GU_VIEW);
     sceGumLoadIdentity();
@@ -180,17 +180,159 @@ void apply_camera(const Camera2D *cam)
     sceGumLoadIdentity();
 }
 
+void apply_camera3d(const Camera3D *cam)
+{
+    sceGumMatrixMode(GU_VIEW);
+    sceGumLoadIdentity();
+
+    // SCALE -> ROTATION -> TRANSLATION normalmente
+    // TRANSLATION -> ROTATION -> SCALE en psp
+
+    ScePspFVector3 v = {cam->x, cam->y, cam->z};
+    sceGumTranslate(&v);
+
+    sceGumMatrixMode(GU_MODEL);
+    sceGumLoadIdentity();
+}
+
+
+typedef struct {
+    float x, y, z;
+    float rx, ry, rz;
+    float sx, sy, sz;
+
+    Mesh *mesh;
+    Texture *tex;
+} Cube;
+
+Cube *create_cube(float x, float y, float z, float rx, float ry, float rz, float sx, float sy, float sz, Texture *tex)
+{
+    Cube *cube = malloc(sizeof(Cube));
+    if (cube == NULL)
+        return NULL;
+
+    cube->mesh = create_mesh(8, 36);
+    if (cube->mesh == NULL)
+    {
+        free(cube);
+        return NULL;
+    }
+
+    cube->x = x;
+    cube->y = y;
+    cube->z = z;
+    cube->rx = rx;
+    cube->ry = ry;
+    cube->rz = rz;
+    cube->sx = sx;
+    cube->sy = sy;
+    cube->sz = sz;
+    cube->tex = tex;
+    cube->mesh->index_count = 36;
+
+    ((Vertex *)cube->mesh->data)[0] = create_vert(0, 0, 0xFFFFFFFF,-1, 1, 1), //3
+    ((Vertex *)cube->mesh->data)[1] = create_vert(1, 0, 0xFFFFFFFF, 1, 1, 1), //2
+    ((Vertex *)cube->mesh->data)[2] = create_vert(0, 1, 0xFFFFFFFF, 1,-1, 1), //1
+    ((Vertex *)cube->mesh->data)[3] = create_vert(0, 0, 0xFFFFFFFF,-1,-1, 1), //0
+
+    ((Vertex *)cube->mesh->data)[4] = create_vert(0, 1, 0xFFFFFFFF,-1, 1, -1), //7
+    ((Vertex *)cube->mesh->data)[5] = create_vert(1, 1, 0xFFFFFFFF, 1, 1, -1), //6
+    ((Vertex *)cube->mesh->data)[6] = create_vert(1, 1, 0xFFFFFFFF, 1, -1, -1), //5
+    ((Vertex *)cube->mesh->data)[7] = create_vert(1, 0, 0xFFFFFFFF,-1, -1, -1), //4
+
+
+    cube->mesh->indices[0] = 0;
+    cube->mesh->indices[1] = 1;
+    cube->mesh->indices[2] = 2;
+    cube->mesh->indices[3] = 2;
+    cube->mesh->indices[4] = 3;
+    cube->mesh->indices[5] = 0;
+    cube->mesh->indices[6] = 1;
+    cube->mesh->indices[7] = 5;
+    cube->mesh->indices[8] = 6;
+    cube->mesh->indices[9] = 6;
+    cube->mesh->indices[10] = 2;
+    cube->mesh->indices[11] = 1;
+    cube->mesh->indices[12] = 7;
+    cube->mesh->indices[13] = 6;
+    cube->mesh->indices[14] = 5;
+    cube->mesh->indices[15] = 5;
+    cube->mesh->indices[16] = 4;
+    cube->mesh->indices[17] = 7;
+    cube->mesh->indices[18] = 4;
+    cube->mesh->indices[19] = 0;
+    cube->mesh->indices[20] = 3;
+    cube->mesh->indices[21] = 3;
+    cube->mesh->indices[22] = 7;
+    cube->mesh->indices[23] = 4;
+    cube->mesh->indices[24] = 4;
+    cube->mesh->indices[25] = 5;
+    cube->mesh->indices[26] = 1;
+    cube->mesh->indices[27] = 1;
+    cube->mesh->indices[28] = 0;
+    cube->mesh->indices[29] = 4;
+    cube->mesh->indices[30] = 3;
+    cube->mesh->indices[31] = 2;
+    cube->mesh->indices[32] = 6;
+    cube->mesh->indices[33] = 6;
+    cube->mesh->indices[34] = 7;
+    cube->mesh->indices[35] = 3;
+
+
+    sceKernelDcacheWritebackInvalidateAll();
+
+    return cube;
+}
+
+void draw_cube(Cube *cube)
+{
+    sceGumMatrixMode(GU_MODEL);
+    sceGumLoadIdentity();
+
+    ScePspFVector3 v = {
+        .x = cube->x,
+        .y = cube->y,
+        .z = cube->z,
+    };
+    sceGumTranslate(&v);
+
+    ScePspFVector3 r = {
+        .x = cube->rx,
+        .y = cube->ry,
+        .z = cube->rz,
+    };
+    sceGumRotateXYZ(&r);
+
+    ScePspFVector3 s = {
+        .x = cube->sx,
+        .y = cube->sy,
+        .z = cube->sz};
+    sceGumScale(&s);
+
+    bind_texture(cube->tex);
+    draw_mesh(cube->mesh);
+}
+
+void destroy_cube(Cube *cube)
+{
+    destroy_mesh(cube->mesh);
+    free(cube);
+}
+
+
+
 int main()
 {
     SetupCallbacks();
 
     initGraphics(list);
+    //sceGuDisable(GU_TEXTURE_2D);
 
     // setup matrices
 
     sceGumMatrixMode(GU_PROJECTION);
     sceGumLoadIdentity();
-    sceGumOrtho(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, -10.0f, 10.0f);
+    sceGumPerspective(75.0f,16.0f/9.0f,0.5f,1000.0f);
 
     sceGumMatrixMode(GU_VIEW);
     sceGumLoadIdentity();
@@ -201,16 +343,18 @@ int main()
     Texture *texture = load_texture("container.jpg", GU_FALSE, GU_TRUE);
     if (!texture)
         goto cleanup;
+    
+    Cube* cube = create_cube(0.0f, 0.0f, -5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, texture);
 
-    Sprite *sprite = create_sprite(-0.5f, 0.0f, 1.0f, 1.0f, texture);
-    if (!sprite)
-        goto cleanup;
-
-    Camera2D camera =
+    Camera3D camera =
         {
             .x = 0,
             .y = 0,
-            .rot = 45.0f};
+            .z = 0,
+            .yaw = 0.0f,
+            .pitch = 0.0f};
+
+    int val = 0;
 
     while (running)
     {
@@ -220,26 +364,24 @@ int main()
         sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
         sceGuEnable(GU_BLEND);
 
-        // We're doing a 2D
-        sceGuDisable(GU_DEPTH_TEST);
-
         // clear screen
 
-        sceGuClearColor(0xFF000000); // GU_RGBA, GU_ABGR, GU_ARGB, GU_COLOR in pspgu.h is useful
-        sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_STENCIL_BUFFER_BIT);
+        sceGuClearColor(0xff554433); // GU_RGBA, GU_ABGR, GU_ARGB, GU_COLOR in pspgu.h is useful
+        sceGuClearDepth(0);
+		sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
 
-        apply_camera(&camera);
+        apply_camera3d(&camera);
 
-        draw_sprite(sprite);
+        draw_cube(cube);
 
         endFrame();
-
-        camera.rot += 1.0f;
-        camera.y = sinf(camera.rot / 180.0f * 5.0f) * 0.5f;
-        sprite->x = sinf(camera.rot / 180.0f);
+        val++;
+        cube->rx = val / 100.0f;
+        cube->ry = val / 100.0f;
+        cube->rz = val / 100.0f;
     }
 
-    destroy_sprite(sprite);
+    destroy_cube(cube);
 
 cleanup:
 
