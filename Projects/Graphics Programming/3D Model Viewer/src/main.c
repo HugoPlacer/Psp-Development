@@ -232,13 +232,13 @@ Cube *create_cube(float x, float y, float z, float rx, float ry, float rz, float
 
     ((Vertex *)cube->mesh->data)[0] = create_vert(0, 0, 0xFFFFFFFF,-1, 1, 1), //3
     ((Vertex *)cube->mesh->data)[1] = create_vert(1, 0, 0xFFFFFFFF, 1, 1, 1), //2
-    ((Vertex *)cube->mesh->data)[2] = create_vert(0, 1, 0xFFFFFFFF, 1,-1, 1), //1
-    ((Vertex *)cube->mesh->data)[3] = create_vert(0, 0, 0xFFFFFFFF,-1,-1, 1), //0
+    ((Vertex *)cube->mesh->data)[2] = create_vert(1, 1, 0xFFFFFFFF, 1,-1, 1), //1
+    ((Vertex *)cube->mesh->data)[3] = create_vert(0, 1, 0xFFFFFFFF,-1,-1, 1), //0
 
     ((Vertex *)cube->mesh->data)[4] = create_vert(0, 1, 0xFFFFFFFF,-1, 1, -1), //7
     ((Vertex *)cube->mesh->data)[5] = create_vert(1, 1, 0xFFFFFFFF, 1, 1, -1), //6
-    ((Vertex *)cube->mesh->data)[6] = create_vert(1, 1, 0xFFFFFFFF, 1, -1, -1), //5
-    ((Vertex *)cube->mesh->data)[7] = create_vert(1, 0, 0xFFFFFFFF,-1, -1, -1), //4
+    ((Vertex *)cube->mesh->data)[6] = create_vert(1, 0, 0xFFFFFFFF, 1, -1, -1), //5
+    ((Vertex *)cube->mesh->data)[7] = create_vert(0, 0, 0xFFFFFFFF,-1, -1, -1), //4
 
 
     cube->mesh->indices[0] = 0;
@@ -340,7 +340,7 @@ int main()
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
 
-    Texture *texture = load_texture("container.jpg", GU_FALSE, GU_TRUE);
+    Texture *texture = load_texture("UVChecker.png", GU_FALSE, GU_TRUE);
     if (!texture)
         goto cleanup;
     
@@ -376,9 +376,9 @@ int main()
 
         endFrame();
         val++;
-        cube->rx = val / 100.0f;
-        cube->ry = val / 100.0f;
-        cube->rz = val / 100.0f;
+        cube->rx = val * 0.79f * (GU_PI/180.0f);
+        cube->ry = val * 0.98f * (GU_PI/180.0f);
+        cube->rz = val * 1.32f * (GU_PI/180.0f);
     }
 
     destroy_cube(cube);
