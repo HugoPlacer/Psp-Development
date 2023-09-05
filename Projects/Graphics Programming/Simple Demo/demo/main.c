@@ -85,7 +85,7 @@ Vertex create_vert(float u, float v, unsigned int color, float x, float y, float
 }
 
 typedef struct {
-    float w, h;
+    float w, h; //el tamaño en pixeles de cada subtextura
 } TextureAtlas;
 
 // revisar esta funcion porque no acabo de entender que hacen los calculos
@@ -351,20 +351,28 @@ int main()
         goto cleanup;
     
     TextureAtlas atlas = {.w = 16, .h = 16};
-    Tilemap* tilemap = create_tilemap(atlas, texture, 8, 8);
-    tilemap->x = 176;
-    tilemap->y = 136;
+    Tilemap* tilemap = create_tilemap(atlas, texture, 16, 16); //los ultimos dos numeros estan relacionados con los bucles de abajo, si hay menos no se puede acceder a la memoria asi que es como si "permitiera" acceder a eso, tipo el numero/tamaño maximo de tiles
+    tilemap->x = 0; //posicion del tilemap, descubrir como interactua con cada tile, si afecta o no y como contrarestarlo
+    tilemap->y = 0;  //posicion del tilemap
 
-    for(int y = 0; y < 8; y++) {
-        for(int x = 0; x < 8; x++) {
-            Tile tile = {
-                .x = x,
-                .y = y,
-                .tex_idx = x + y * 8
-            };
-            tilemap->tiles[x + y * 8] = tile;
-        }
-    }
+    // for(int y = 0; y < 16; y++) {
+    //     for(int x = 0; x < 16; x++) {
+    //         Tile tile = {
+    //             .x = x,
+    //             .y = y,
+    //             .tex_idx = x + y * 16 //el numero del final de esta multiplicaciobn (x + y * 10) esta relacionado con los de arriba
+    //         };
+    //         tilemap->tiles[x + y * 16] = tile;
+    //     }
+    // }
+
+    Tile dirt = {
+        .x = 2, //define la posicion en la que se renderiza la tile individual
+        .y = 2, //define la posicion en la que se renderiza la tile individual
+        .tex_idx = 0 + 2 //define que textura del atlas tiene la tile (sumar la x + la y (porque es una array lineal en realidad))
+    };
+
+    tilemap->tiles[0 + 1] = dirt; //asigna la informacion de la tile configurada en la array de tiles del tilemap creo
 
     build_tilemap(tilemap);
 

@@ -340,7 +340,7 @@ int main()
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
 
-    Texture *texture = load_texture("UVChecker.png", GU_FALSE, GU_TRUE);
+    Texture *texture = load_texture("container.jpg", GU_FALSE, GU_TRUE);
     if (!texture)
         goto cleanup;
     
