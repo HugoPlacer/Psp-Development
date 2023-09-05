@@ -13,6 +13,7 @@
         "pspgum.h": "c",
         "pspkernel.h": "c",
         "common-sce.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "*.bak": "c"
     }
 }
