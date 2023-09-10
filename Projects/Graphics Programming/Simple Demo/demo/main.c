@@ -380,8 +380,12 @@ int main()
     tilemap2->x = 144;
     tilemap2->y = 16;
 
-    draw_text(tilemap2, "Hello World!");
+    char* str = "Hello World!";
+
+    draw_text(tilemap2, str);
     build_tilemap(tilemap2);
+
+    int val = 0;
 
     while (running)
     {
@@ -403,6 +407,7 @@ int main()
         draw_tilemap(tilemap2);
 
         endFrame();
+        val++;
     }
 
     destroy_tilemap(tilemap);
